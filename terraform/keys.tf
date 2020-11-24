@@ -6,10 +6,10 @@ variable "region" {
 variable "access_key" {
   description = "Access Key Value"
   type        = string
-  default     = "AKIA4LB74USMEFGM6YPL"
+  default     = "Access Key Value"
 }
 variable "secret_key" {
   description = "Secret Key Value"
   type        = string
-  default     = "XD8MXpD72SeLCxrqPIxKpPCYjAdnDVQblwA27P92"
+  default     = "Secret Key Value"
 }

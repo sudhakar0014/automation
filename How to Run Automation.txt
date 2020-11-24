@@ -1,0 +1,67 @@
+Steps To Run The Automation:
+1. Please Change the variables.tf and keys.tf file as directed.  
+    variable.tf: This file holds the variables of the terraform script which we need to give
+                      to configure ec2 instance. variables in this file are: 
+                      1. KeyName: KeyPair name for ec2 instance so our ansible can connect to it.
+                      2. Instance_Type: Which EC2 Instance type we want to launch.
+                      3. subnet_id: Subnet_id In which EC2 instance will be launched. (according to VPC)
+                      4. Vpc_Id: Vpc_Id for creating security group for ec2 instance. (According to region)
+                      5. ami_id: which ami we need to use for EC2 instance.
+                      6. Name: Name for ec2 instance and Security Group to identify the EC2 instance and it's Security Group.
+     keys.tf:     This file holds the credential information of aws account and region.
+                      variables in this file are:
+                      1. region: In which region we want to launch EC2 instance.
+                      2. access_key: access_key value of aws account.
+                      3. secret_key: secret_key value of aws account.
+
+2. Run The Terraform file "ec2.tf" which is in "terraform" folder.
+    commands: 
+    terraform init
+    terraform apply --auto-approve
+
+3. Add the Public or Private IP to the ansible hosts(/etc/ansible/hosts) File.
+    syntex to add IP in hosts file:
+    [jsf] 
+    public or private ip value
+    
+   [note: here "jsf" (is name of the server(s)  can be anything if you want to change then it need to be changed in ansible playbook which is 
+   "nginx_docker.yaml"  file]
+    
+4. Run the Ansible Play Book for Installing Docker inside the EC2 instance,Copying the Dockerfile inside the EC2 server , Building docker 
+    container upon the dockerfile which is "nginx_docker.yaml" file. 
+    commands:
+    ansible-playbook --private-key "location to the private key of the KeyPair to access EC2 instanc of above mentioned KeyPair" nginx_docker.yaml  
+
+5. To check weather nginx has been deployed or not please run this command from server.
+     command:
+     curl <ip>
+     
+   output:
+                   <!DOCTYPE html>
+		<html>
+		<head>
+		<title>Welcome to nginx!</title>
+		<style>
+    		body {
+        		width: 35em;
+       		 margin: 0 auto;
+        		font-family: Tahoma, Verdana, Arial, sans-serif;
+    		}
+		</style>
+		</head>
+		<body>
+		<h1>Welcome to nginx!</h1>
+		<p>If you see this page, the nginx web server is successfully installed and
+		working. Further configuration is required.</p>
+
+		<p>For online documentation and support please refer to
+		<a href="http://nginx.org/">nginx.org</a>.<br/>
+		Commercial support is available at
+		<a href="http://nginx.com/">nginx.com</a>.</p>
+
+		<p><em>Thank you for using nginx.</em></p>
+		</body>
+		</html>
+                      
+                  
+                   

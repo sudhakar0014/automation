@@ -1,7 +1,7 @@
 variable "KeyName" {
   description = "KeyPair Name"
   type        = string
-  default     = "test-surewaves"
+  default     = "Put your keyPair value here by which ansible can access new EC2 Instance"
 }
 
 variable "Instance_Type" {
@@ -12,23 +12,23 @@ variable "Instance_Type" {
 variable "subnet_id" {
   description = "subnet id  to be used for the instance"
   type        = string
-  default     = "subnet-071de89d7a6fb816b"
+  default     = "Subnet_ID in which you want to launch EC2 instance"
 }
 
 variable "Vpc_Id" {
   description = "VPC ID  to be  used for the instance"
   type        = string
-  default     = "vpc-02bfe99e38785f530"
+  default     = "VPC Id in which Security Group will be placed"
 }
 variable "ami_id" {
   description = "ID of AMI to use for the instance"
   type        = string
-  default     = "ami-0a4a70bd98c6d6441"
+  default     = "AmiId( I used ubuntu 18.04 for this automation)"
 }
 
 variable "Name"{
 description = "Instance Name"
   type        = string
-  default     = "JSF"
+  default     = "Name of the Instance which  will be used by Security group also"
 
 }
