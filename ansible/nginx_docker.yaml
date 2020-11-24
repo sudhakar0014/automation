@@ -1,0 +1,14 @@
+---
+- hosts : jsf
+  name  : jsf
+  remote_user: ubuntu
+  tasks:
+   - name : Install Docker
+     script: docker.sh
+   - name: Copying DockerFile
+     copy:
+         src: "Dockerfile"
+         dest: /home/ubuntu/
+         mode: 555
+   - name: Buiding And Running Dockerfile
+     script: docker_build.sh       
