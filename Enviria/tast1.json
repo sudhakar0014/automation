@@ -1,0 +1,705 @@
+{
+  "Description": "Surewaves Farget CloudFormation For Private and  public subnets ",
+  "Parameters": {
+    "ClientName": {
+      "Type": "String"
+      
+    },
+    "certificates": {
+      "Type": "String"
+    },
+    "CIDR": {
+      "Type": "String"
+    },
+    "PublicOne": {
+      "Type": "String"
+    },
+    "PublicTwo": {
+      "Type": "String"
+    },
+    "PrivateOne": {
+      "Type": "String"
+    },
+    "PrivateTwo": {
+      "Type": "String"
+    },
+    "InstanceType": {
+      "Type": "String"
+    },
+    "KeyName": {
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    }
+  },
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "VPC"
+          }
+        ],
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true,
+        "CidrBlock": {
+          "Ref": "CIDR"
+        }
+      }
+    },
+    "PublicSubnetOne": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${ClientName}PublicSubnetOne"
+            }
+          }
+        ],
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        },
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Ref": "PublicOne"
+        },
+        "MapPublicIpOnLaunch": true
+      }
+    },
+    "PublicSubnetTwo": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${ClientName}PublicSubnetTwo"
+            }
+          }
+        ],
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        },
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Ref": "PublicTwo"
+        },
+        "MapPublicIpOnLaunch": true
+      }
+    },
+    "PrivateSubnetOne": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${ClientName}PrivateSubnet1}"
+            }
+          }
+        ],
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        },
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Ref": "PrivateOne"
+        }
+      }
+    },
+    "PrivateSubnetTwo": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${ClientName}PrivateSubnet2"
+            }
+          }
+        ],
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": {
+                "Ref": "AWS::Region"
+              }
+            }
+          ]
+        },
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Ref": "PrivateTwo"
+        }
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway"
+    },
+    "GatewayAttachement": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${ClientName}PublicRouteTable"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "GatewayAttachement",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "PublicSubnetOneRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnetOne"
+        },
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        }
+      }
+    },
+    "PublicSubnetTwoRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnetTwo"
+        },
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        }
+      }
+    },
+    "NatGatewayOneAttachment": {
+      "Type": "AWS::EC2::EIP",
+      "DependsOn": "GatewayAttachement",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "NatGatewayTwoAttachment": {
+      "Type": "AWS::EC2::EIP",
+      "DependsOn": "GatewayAttachement",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "NatGatewayOne": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "NatGatewayOneAttachment",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnetOne"
+        }
+      }
+    },
+    "NatGatewayTwo": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "NatGatewayTwoAttachment",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnetTwo"
+        }
+      }
+    },
+    "PrivateRouteTableOne": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${ClientName}PrivateRouteTable"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "PrivateRouteOne": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTableOne"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "NatGatewayOne"
+        }
+      }
+    },
+    "PrivateRouteTableOneAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTableOne"
+        },
+        "SubnetId": {
+          "Ref": "PrivateSubnetOne"
+        }
+      }
+    },
+    "PrivateRouteTableTwo": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "PrivateRouteTableTwo"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "PrivateRouteTwo": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTableTwo"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "NatGatewayTwo"
+        }
+      }
+    },
+    "PrivateRouteTableTwoAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTableTwo"
+        },
+        "SubnetId": {
+          "Ref": "PrivateSubnetTwo"
+        }
+      }
+    },
+    "PublicLoadBalancerSG": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${ClientName}ALBSecurityGroup"
+            }
+          }
+        ],
+        "GroupDescription": "Access to the public facing load balancer",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "IpProtocol": -1
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "ElasticLoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "AvailabilityZones": {
+          "Fn::GetAZs": ""
+        },
+        "CrossZone": "true",
+        "Listeners": [
+          {
+            "InstancePort": "80",
+            "InstanceProtocol": "HTTP",
+            "LoadBalancerPort": "443",
+            "Protocol": "HTTPS",
+            "PolicyNames": [
+              "My-SSLNegotiation-Policy"
+            ],
+            "SSLCertificateId": "arn:aws:iam::123456789012:server-certificate/certificate_name"
+          }
+        ],
+        "HealthCheck": {
+          "Target": "HTTP:80/",
+          "HealthyThreshold": "3",
+          "UnhealthyThreshold": "5",
+          "Interval": "30",
+          "Timeout": "5"
+        },
+        "ConnectionDrainingPolicy": {
+          "Enabled": "true",
+          "Timeout": "300"
+        },
+        "Policies": [
+          {
+            "PolicyName": "My-SSLNegotiation-Policy",
+            "PolicyType": "SSLNegotiationPolicyType",
+            "Attributes": [
+              {
+                "Name": "Reference-Security-Policy",
+                "Value": "ELBSecurityPolicy-TLS-1-2-2017-01"
+              }
+            ]
+          }
+        ]
+        ,  "Subnets": [
+            {
+              "Ref": "PublicSubnetOne"
+            },
+            {
+              "Ref": "PublicSubnetTwo"
+            }
+          ],
+          "SecurityGroups": [
+            {
+              "Ref": "PublicLoadBalancerSG"
+            }
+          ]
+      },
+      "PublicLoadBalancer": {
+        "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+        "Properties": {
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": {
+                "Fn::Sub": "${ClientName}PublicLoadBalancer"
+              }
+            }
+          ],
+          "Scheme": "internet-facing",
+          "LoadBalancerAttributes": [
+            {
+              "Key": "idle_timeout.timeout_seconds",
+              "Value": "30"
+            }
+          ],
+          "Subnets": [
+            {
+              "Ref": "PublicSubnetOne"
+            },
+            {
+              "Ref": "PublicSubnetTwo"
+            }
+          ],
+          "SecurityGroups": [
+            {
+              "Ref": "PublicLoadBalancerSG"
+            }
+          ]
+        }
+      }
+    },
+    "PublicLoadBalancerListener": {
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+      "DependsOn": [
+        "PublicLoadBalancer"
+      ],
+      "Properties": {
+        "LoadBalancerArn": {
+          "Ref": "PublicLoadBalancer"
+        },
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "TestTargetGroupPublic"
+            },
+            "Type": "forward"
+          }
+        ],
+        "Certificates": [
+          {
+            "CertificateArn": {
+              "Ref": "certificates"
+            }
+          }
+        ],
+        "Port": 443,
+        "Protocol": "HTTPS"
+      }
+    },
+    "HostedZone": {
+      "Type": "AWS::Route53::HostedZone",
+      "Properties": {
+        "HostedZoneConfig": {
+          "Name": "Task1",
+          "VPCs": [
+            {
+              "VPCId": {
+                "Ref": "VPC"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "S3Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ecs.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "ecs-service",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:FullAccess*"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "DNSName": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "Properties": {
+        "HostedZoneId": {
+          "Ref": "DNS"
+        },
+        "RecordSets": [
+          {
+            "Name": {
+              "Fn::Sub": "alb.task1.com"
+            },
+            "Type": "CNAME",
+            "AliasTarget": {
+              "HostedZoneId": {
+                "Fn::GetAtt": [
+                  "PublicLoadBalancer",
+                  "CanonicalHostedZoneID"
+                ]
+              },
+              "DNSName": {
+                "Fn::GetAtt": [
+                  "PublicLoadBalancer",
+                  "DNSName"
+                ]
+              }
+            }
+          },
+          {
+            "Name": {
+              "Fn::Sub": "elb.task1.com"
+            },
+            "Type": "CNAME",
+            "AliasTarget": {
+              "HostedZoneId": {
+                "Fn::GetAtt": [
+                  "ElasticLoadBalancer",
+                  "CanonicalHostedZoneID"
+                ]
+              },
+              "DNSName": {
+                "Fn::GetAtt": [
+                  "ElasticLoadBalancer",
+                  "DNSName"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "DNS": {
+      "Type": "AWS: : Route53: : HostedZone",
+      "Properties": {
+        "HostedZoneConfig": {
+          "Comment": "HostedZone For Testing"
+        },
+        "Name": "name.com",
+        "VPCs": [
+          {
+            "Ref": "VPC"
+          }
+        ],
+        "HostedZoneTags": [
+          {
+            "Key": "Name",
+            "Value": "TestHostedZone"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "StackName": {
+      "Description": "Stack Name",
+      "Value": {
+        "Ref": "AWS::StackName"
+      }
+    },
+    "PublicListener": {
+      "Description": "The ARN of the public load balancer's Listener",
+      "Value": {
+        "Ref": "PublicLoadBalancerListener"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            ":",
+            [
+              {
+                "Ref": "AWS::StackName"
+              },
+              "PublicListener"
+            ]
+          ]
+        }
+      }
+    },
+    "VPCId": {
+      "Description": "The ID of the VPC that this stack is deployed in",
+      "Value": {
+        "Ref": "VPC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-VpcId"
+        }
+      }
+    },
+    "PublicSubnetOne": {
+      "Description": "Public subnet one",
+      "Value": {
+        "Ref": "PublicSubnetOne"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PublicSubnetOne"
+        }
+      }
+    },
+    "PublicSubnetTwo": {
+      "Description": "Public subnet two",
+      "Value": {
+        "Ref": "PublicSubnetTwo"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PublicSubnetTwo"
+        }
+      }
+    },
+    "PrivateSubnetOne": {
+      "Description": "Private subnet one",
+      "Value": {
+        "Ref": "PrivateSubnetOne"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PrivateSubnetOne"
+        }
+      }
+    },
+    "PrivateSubnetTwo": {
+      "Description": "Private subnet two",
+      "Value": {
+        "Ref": "PrivateSubnetTwo"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PrivateSubnetTwo"
+        }
+      }
+    }
+  }
+}

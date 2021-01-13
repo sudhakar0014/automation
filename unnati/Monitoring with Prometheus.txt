@@ -1,0 +1,18 @@
+Prometheus addon will obtain the metrics from Istio. Install Prometheus:
+
+kubectl apply -f install/kubernetes/addons/prometheus.yaml
+Install the Servicegraph addon; Servicegraph queries Prometheus, which obtains details of the mesh traffic flows from Istio:
+
+kubectl apply -f install/kubernetes/addons/servicegraph.yaml
+Generate some traffic to the application:
+
+curl http://$(kubectl get svc/webapp -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+View the ServiceGraph UI:
+
+kubectl -n istio-system \
+  port-forward $(kubectl -n istio-system \
+    get pod \
+    -l app=servicegraph \
+    -o jsonpath='{.items[0].metadata.name}') \
+    8088:8088 &
+open http://localhost:8088/dotviz
