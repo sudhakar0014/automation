@@ -1,0 +1,27 @@
+Please follow instructions carefully.
+I have created ansible scripts to install kubernetes in worker node, Creating the cluster and Attaching worker nodes to master
+Since we have ansible scripts we will required ansible  in the Ec2 machine.
+
+1. Please follow below Link to install Ansible
+   Ansible: https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-ansible-on-ubuntu-18-04
+
+2. We need to install Docker and Kubernetes in EC2 machine. Please follow below urls.
+   Docker: https://docs.docker.com/get-docker/
+   Kubernetes: https://computingforgeeks.com/deploy-kubernetes-cluster-on-ubuntu-with-kubeadm/
+
+3. Please Update the IPs in "inventory" file 
+
+4. Pleaes make sure Master Ec2 Instance Can access other 2 nodes(Worker Ec2 Machine) via ssh(Using Ssh keys). 
+   [Note: If ansible and Kubernetes are in same Ec2 instance then it should able to access itself via ssh]
+
+5. After following above instructions carefully master node will have ansible, docker and kubernetes and it will be able to 
+   access other worker nodes via ssh including itself.
+
+6. Use below commands to varify 
+   inventory validation:
+   command:  ansible-inventory -i inventory --list -y 
+   
+   Reachablity:
+   command: ansible all -i inventory -m ping
+
+
