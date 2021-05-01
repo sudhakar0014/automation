@@ -25,4 +25,4 @@ since i have created in public subnet for accessing the applicataion type below 
 <server_ip>:port
 
 
-Note: To Know more about the ansible Scripts Please refer to Scripts_explain.txt
+Note: To Know more about the ansible Scripts Please refer to Scripts_brief.txt
