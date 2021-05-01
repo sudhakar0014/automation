@@ -8,8 +8,8 @@ kubernetes-node-1
 ansible_python_interpreter=/usr/bin/python3
 
 [kube-master]
-kubernetes ansible_host=13.229.219.127
+kubernetes ansible_host=  <ip>
 
 [kube-node]
-kubernetes-node-1 ansible_host=52.77.255.246
-kubernetes-node-2 ansible_host=54.169.254.73
+kubernetes-node-1 ansible_host=   <ip>
+kubernetes-node-2 ansible_host=   <ip>
