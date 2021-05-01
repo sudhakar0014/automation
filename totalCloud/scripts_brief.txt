@@ -1,0 +1,17 @@
+"Here is brief about scripts"
+
+kube-install-software.yml:
+This Scripts install the Kubernets and it's releted software in Worker machine(kube-node) specified in "inventory" file.
+This script includes docker.io kubelet and kubeadm for running kubernetes.
+
+kube-setup-cluster.yml:
+It sets up the Cluster in master node and get the token which will be used in worker node so that they can join Master node.
+please follow below URL for Detailed explanaiton (From no. 10)
+URL: https://www.educative.io/edpresso/how-to-create-a-kubernetes-cluster-using-kubeadm 
+
+Hello.yml:
+This is a yml configuraiton file which have deployment and service configuration.
+Deployment configuration have nginx as docker images so that we can get nginx default page after hitting END point.
+It has a service (as loadbalancer) which is being used to expose a port for interecting to the nginx application.
+
+Follow ReadME for Runing the application.
