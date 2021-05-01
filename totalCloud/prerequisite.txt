@@ -17,7 +17,7 @@ Since we have ansible scripts we will required ansible  in the Ec2 machine.
 5. After following above instructions carefully master node will have ansible, docker and kubernetes and it will be able to 
    access other worker nodes via ssh including itself.
 
-6. Use below commands to varify 
+6. Use below commands to varify  prerequisite setup.
    inventory validation:
    command:  ansible-inventory -i inventory --list -y 
    
